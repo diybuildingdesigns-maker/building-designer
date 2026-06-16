@@ -412,7 +412,7 @@ header{display:flex;align-items:center;gap:14px;padding:12px 22px;background:var
       <!-- Mono slope: independent eave heights -->
       <div id="monoFields" style="display:none;margin-top:8px">
         <div class="stepper-row">
-          <div class="stepper-label">Front Eave <span class="unit">low side, ft</span></div>
+          <div class="stepper-label">Back Sidewall <span class="unit">low side, ft</span></div>
           <div class="stepper">
             <button data-step="-1" data-target="rMF">−</button>
             <input type="number" id="rMF" value="16" min="6" max="40" step="1">
@@ -420,7 +420,7 @@ header{display:flex;align-items:center;gap:14px;padding:12px 22px;background:var
           </div>
         </div>
         <div class="stepper-row">
-          <div class="stepper-label">Back Eave <span class="unit">high side, ft</span></div>
+          <div class="stepper-label">Front Sidewall <span class="unit">high side, ft</span></div>
           <div class="stepper">
             <button data-step="-1" data-target="rMB">−</button>
             <input type="number" id="rMB" value="24" min="6" max="40" step="1">
@@ -548,6 +548,71 @@ header{display:flex;align-items:center;gap:14px;padding:12px 22px;background:var
       <div class="olist" id="olist"></div>
     </div>
 
+    <!-- Insulation -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="ic green">🧊</div>
+        <div>
+          <div class="card-title">Insulation</div>
+          <div class="card-sub">So we can calculate the frame for it</div>
+        </div>
+      </div>
+      <div class="toggle-row" style="margin-bottom:0">
+        <div class="tl">Please select if planning on insulating building</div>
+        <button class="tog" id="tIns"></button>
+      </div>
+      <div id="insRValueRows" style="display:none;margin-top:10px">
+        <div class="field-row">
+          <label class="field-label">Roof R-Value</label>
+          <select id="insRoofR" class="mfield" style="width:100%;background:#f9fafb;border:1.5px solid var(--line);border-radius:10px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;font-size:13px;padding:9px 10px;cursor:pointer;outline:none;appearance:none">
+            <option value="19">R-19</option>
+            <option value="25">R-25</option>
+            <option value="30">R-30</option>
+            <option value="38">R-38</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label class="field-label">Wall R-Value</label>
+          <select id="insWallR" class="mfield" style="width:100%;background:#f9fafb;border:1.5px solid var(--line);border-radius:10px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;font-size:13px;padding:9px 10px;cursor:pointer;outline:none;appearance:none">
+            <option value="10">R-10</option>
+            <option value="13">R-13</option>
+            <option value="19" selected>R-19</option>
+            <option value="25">R-25</option>
+            <option value="30">R-30</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Profile -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="ic blue">🪵</div>
+        <div>
+          <div class="card-title">Panel Style</div>
+          <div class="card-sub">Choose the metal panel profile for each surface</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Roof Panel</label>
+        <select id="matSelRoof" class="mfield" style="width:100%;background:#f9fafb;border:1.5px solid var(--line);border-radius:10px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;font-size:13px;padding:9px 10px;cursor:pointer;outline:none;appearance:none">
+          <option>Ribbed R-Panel</option>
+          <option>Standing Seam</option>
+          <option>Corrugated</option>
+          <option>Flat Sheet</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label class="field-label">Wall Panel</label>
+        <select id="matSelWall" class="mfield" style="width:100%;background:#f9fafb;border:1.5px solid var(--line);border-radius:10px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;font-size:13px;padding:9px 10px;cursor:pointer;outline:none;appearance:none">
+          <option>Ribbed R-Panel</option>
+          <option>Standing Seam</option>
+          <option>Corrugated</option>
+          <option>Flat Sheet</option>
+        </select>
+      </div>
+    </div>
+
     <!-- Wainscot -->
     <div class="card">
       <div class="toggle-row">
@@ -595,23 +660,6 @@ header{display:flex;align-items:center;gap:14px;padding:12px 22px;background:var
         </div>
         <div class="cacc-body" id="bodyWain"><div class="cg" id="cgWain"></div></div>
       </div>
-    </div>
-
-    <!-- Panel Profile -->
-    <div class="card">
-      <div class="card-hd">
-        <div class="ic blue">🪵</div>
-        <div>
-          <div class="card-title">Panel Style</div>
-          <div class="card-sub">Choose the metal panel profile</div>
-        </div>
-      </div>
-      <select id="matSel" class="mfield" style="width:100%;background:#f9fafb;border:1.5px solid var(--line);border-radius:10px;color:var(--ink);font-family:'Inter',sans-serif;font-weight:500;font-size:13px;padding:9px 10px;cursor:pointer;outline:none;appearance:none">
-        <option>Ribbed R-Panel</option>
-        <option>Standing Seam</option>
-        <option>Corrugated</option>
-        <option>Flat Sheet</option>
-      </select>
     </div>
 
   </div>
@@ -981,6 +1029,16 @@ const S = {
   type: 'warehouse',
   wainscot: false,
 
+  // Panel style — cosmetic/spec only, not used in 3D geometry (the 3D
+  // preview always shows the R-panel look regardless of selection)
+  roofPanelStyle: 'Ribbed R-Panel',
+  wallPanelStyle: 'Ribbed R-Panel',
+
+  // Insulation — for the quote/spec output, used to size framing
+  insulation: false,
+  insulationRoofR: 19,  // R-value
+  insulationWallR: 19,  // R-value
+
   // Doors, windows, and vents placed on walls. Each entry:
   //   {id, type, wall, u, width, sillH, headerH}
   // type: 'walk' (walk-in door), 'rollup' (roll-up/garage door),
@@ -1015,8 +1073,13 @@ const OP_ICON = {
 // ════════════════════════════════════════════════════════════════
 // hw = half width (X axis), hl = half length (Z axis), H = eave height
 // For GABLE: H is the uniform eave height on all 4 walls (S.bH).
-// For MONO:  H is the FRONT (low) eave height (S.monoFrontH). The back
-//            wall and ridge use monoBackH / monoRise() separately.
+// For MONO:  H is the FRONT SIDEWALL ('left', low... see note) eave
+//            height. Slope runs between Front Sidewall (high) and Back
+//            Sidewall (low) — i.e. along X, between 'left' and 'right'.
+//            monoFrontH/monoBackH are kept as the state field names for
+//            backward compatibility, but their WALL MEANING changed:
+//            monoFrontH = Back Sidewall ('right') eave height (low)
+//            monoBackH  = Front Sidewall ('left') eave height (high)
 function dims(){
   const hw = S.bW/2, hl = S.bL/2;
   const H = (S.roof === 'mono') ? S.monoFrontH : S.bH;
@@ -1029,21 +1092,23 @@ function gableRise(){
   return (S.pitch/12) * (S.bW/2);
 }
 
-// Mono slope rise (Y) — the vertical difference between the high (back) and
-// low (front) eave heights. DERIVED from monoFrontH/monoBackH, NOT from pitch.
+// Mono slope rise (Y) — the vertical difference between the high (Front
+// Sidewall, 'left') and low (Back Sidewall, 'right') eave heights.
+// DERIVED from monoFrontH/monoBackH, NOT from pitch.
 function monoRise(){
   return Math.max(0, S.monoBackH - S.monoFrontH);
 }
 
 // Effective pitch (X:12) for mono slope, calculated from the eave height
-// difference over the building width. Used for display only.
+// difference over the building WIDTH (since the slope now runs along X,
+// between the sidewalls). Used for display only.
 function monoPitch(){
   if(S.bW === 0) return 0;
   return (monoRise() / S.bW) * 12;
 }
 
 // Roof ridge height (top of building) regardless of roof type.
-// For mono slope this is simply the back (high) eave height.
+// For mono slope this is simply the high (Front Sidewall) eave height.
 function ridgeHeight(){
   if(S.roof === 'mono') return S.monoBackH;
   const {H} = dims();
@@ -1073,17 +1138,20 @@ function getWall(name){
   const w = d[name];
   // Height at u=0 (left edge) and u=1 (right edge) of this wall.
   // For gable roof: front/back are gable ends (triangle above eave), left/right are eave height.
-  // For mono slope: front = low eave (H), back = high eave (H+monoRise),
-  //                  left/right are trapezoids from H (front) to H+monoRise (back).
+  // For mono slope: slope runs along X between the SIDEWALLS —
+  //   'left' (Front Sidewall) = HIGH eave (monoBackH), constant
+  //   'right' (Back Sidewall) = LOW eave (monoFrontH), constant
+  //   front/back (endwalls) are trapezoids: high at x=-hw (left side),
+  //   low at x=+hw (right side).
   if(S.roof === 'mono'){
-    if(name === 'front'){ w.hLeft = S.monoFrontH; w.hRight = S.monoFrontH; }
-    else if(name === 'back'){ w.hLeft = S.monoBackH; w.hRight = S.monoBackH; }
-    else { // left/right side walls — trapezoid low at front(z=+hl) to high at back(z=-hl)
+    if(name === 'left'){ w.hLeft = S.monoBackH; w.hRight = S.monoBackH; }
+    else if(name === 'right'){ w.hLeft = S.monoFrontH; w.hRight = S.monoFrontH; }
+    else { // front/back endwalls — trapezoid high at x=-hw to low at x=+hw
       // u=0 is "left" per the right-vector convention above.
-      // left wall: right=(0,0,-1) so u=0 -> z=+hl (front, low), u=1 -> z=-hl (back, high)
-      // right wall: right=(0,0,1) so u=0 -> z=-hl (back, high), u=1 -> z=+hl (front, low)
-      if(name === 'left'){ w.hLeft = S.monoFrontH; w.hRight = S.monoBackH; }
-      else { w.hLeft = S.monoBackH; w.hRight = S.monoFrontH; }
+      // front wall: right=(1,0,0) so u=0 -> x=-hw (high), u=1 -> x=+hw (low)
+      // back wall: right=(-1,0,0) so u=0 -> x=+hw (low), u=1 -> x=-hw (high)
+      if(name === 'front'){ w.hLeft = S.monoBackH; w.hRight = S.monoFrontH; }
+      else { w.hLeft = S.monoFrontH; w.hRight = S.monoBackH; }
     }
   } else {
     w.hLeft = S.bH; w.hRight = S.bH;
@@ -1139,7 +1207,7 @@ function centerFromLeft(op){
 // constant H regardless of u.
 function wallHeightAtOpening(op){
   const {H} = dims();
-  if(S.roof === 'mono' && (op.wall==='left' || op.wall==='right')){
+  if(S.roof === 'mono' && (op.wall==='front' || op.wall==='back')){
     const ridge = ridgeHeight();
     return ridge + (H-ridge)*op.u;
   }
@@ -1684,10 +1752,10 @@ function makePanelNormal(){
   ctx.fillStyle='rgb(128,128,255)'; ctx.fillRect(0,0,256,256);
   for(let x=0;x<256;x+=12){
     const g1=ctx.createLinearGradient(x,0,x+6,0);
-    g1.addColorStop(0,'rgb(128,128,255)'); g1.addColorStop(1,'rgb(80,128,255)');
+    g1.addColorStop(0,'rgb(128,128,255)'); g1.addColorStop(1,'rgb(48,128,255)');
     ctx.fillStyle=g1; ctx.fillRect(x,0,4,256);
     const g2=ctx.createLinearGradient(x+4,0,x+8,0);
-    g2.addColorStop(0,'rgb(176,128,255)'); g2.addColorStop(1,'rgb(128,128,255)');
+    g2.addColorStop(0,'rgb(208,128,255)'); g2.addColorStop(1,'rgb(128,128,255)');
     ctx.fillStyle=g2; ctx.fillRect(x+4,0,4,256);
   }
   const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
@@ -1704,30 +1772,91 @@ function makeRoofNormal(){
   ctx.fillStyle='rgb(128,128,255)'; ctx.fillRect(0,0,256,256);
   for(let y=0;y<256;y+=12){
     const g1=ctx.createLinearGradient(0,y,0,y+6);
-    g1.addColorStop(0,'rgb(128,128,255)'); g1.addColorStop(1,'rgb(80,128,255)');
+    g1.addColorStop(0,'rgb(128,128,255)'); g1.addColorStop(1,'rgb(128,48,255)');
     ctx.fillStyle=g1; ctx.fillRect(0,y,256,4);
     const g2=ctx.createLinearGradient(0,y+4,0,y+8);
-    g2.addColorStop(0,'rgb(176,128,255)'); g2.addColorStop(1,'rgb(128,128,255)');
+    g2.addColorStop(0,'rgb(128,208,255)'); g2.addColorStop(1,'rgb(128,128,255)');
     ctx.fillStyle=g2; ctx.fillRect(0,y+4,256,4);
   }
   const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
   return t;
 }
+
+// Standing seam normal map for WALLS — wide flat pans (most of the
+// surface unperturbed) with a single narrow raised seam every 64px
+// (wider spacing than R-panel's frequent ribs, matching how standing
+// seam panels read visually: clean flat faces, occasional sharp seam).
+function makeStandingSeamPanelNormal(){
+  const c = document.createElement('canvas'); c.width=256; c.height=256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle='rgb(128,128,255)'; ctx.fillRect(0,0,256,256);
+  for(let x=0;x<256;x+=64){
+    // Narrow raised seam: a quick left-facing slope, a flat cap, a
+    // right-facing slope back down — reads as a crisp vertical bead.
+    const g1=ctx.createLinearGradient(x,0,x+3,0);
+    g1.addColorStop(0,'rgb(128,128,255)'); g1.addColorStop(1,'rgb(20,128,255)');
+    ctx.fillStyle=g1; ctx.fillRect(x,0,3,256);
+    ctx.fillStyle='rgb(150,128,255)'; ctx.fillRect(x+3,0,3,256);
+    const g2=ctx.createLinearGradient(x+6,0,x+9,0);
+    g2.addColorStop(0,'rgb(236,128,255)'); g2.addColorStop(1,'rgb(128,128,255)');
+    ctx.fillStyle=g2; ctx.fillRect(x+6,0,3,256);
+  }
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  return t;
+}
+
+// Standing seam normal map for ROOFS — same crisp narrow seam, oriented
+// so seams run down the slope (matches makeRoofNormal's V=worldZ convention).
+function makeStandingSeamRoofNormal(){
+  const c = document.createElement('canvas'); c.width=256; c.height=256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle='rgb(128,128,255)'; ctx.fillRect(0,0,256,256);
+  for(let y=0;y<256;y+=64){
+    const g1=ctx.createLinearGradient(0,y,0,y+3);
+    g1.addColorStop(0,'rgb(128,128,255)'); g1.addColorStop(1,'rgb(128,20,255)');
+    ctx.fillStyle=g1; ctx.fillRect(0,y,256,3);
+    ctx.fillStyle='rgb(128,150,255)'; ctx.fillRect(0,y+3,256,3);
+    const g2=ctx.createLinearGradient(0,y+6,0,y+9);
+    g2.addColorStop(0,'rgb(128,236,255)'); g2.addColorStop(1,'rgb(128,128,255)');
+    ctx.fillStyle=g2; ctx.fillRect(0,y+6,256,3);
+  }
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  return t;
+}
+
 const panelNorm = makePanelNormal();
 const roofNorm  = makeRoofNormal();
+const standingSeamPanelNorm = makeStandingSeamPanelNormal();
+const standingSeamRoofNorm  = makeStandingSeamRoofNormal();
 
 // role: 'wall' | 'roof' | 'trim' | 'slab'
 // Every wall AND gable-end AND roof surface MUST use this so they always
 // share identical color, metalness, roughness and rib normal-map.
+// For 'wall'/'roof', the actual normal map used depends on the selected
+// panel style (S.wallPanelStyle / S.roofPanelStyle) — Standing Seam gets
+// the wide-flat-pan-with-seam look, everything else (Ribbed R-Panel,
+// Corrugated, Flat Sheet) currently shares the same R-panel rib texture
+// as a reasonable visual stand-in.
 function mat(hex, role='wall'){
   const col = new THREE.Color(hex);
   if(role==='wall' || role==='roof'){
-    const nm = (role==='roof' ? roofNorm : panelNorm).clone();
-    nm.repeat.set(4,2);
+    const isRoof = role==='roof';
+    const styleField = isRoof ? S.roofPanelStyle : S.wallPanelStyle;
+    const isStandingSeam = styleField === 'Standing Seam';
+    const baseNorm = isRoof
+      ? (isStandingSeam ? standingSeamRoofNorm : roofNorm)
+      : (isStandingSeam ? standingSeamPanelNorm : panelNorm);
+    const nm = baseNorm.clone();
+    // Denser repeat so ribs/seams read at a realistic, visible scale
+    // from typical viewing distances (not just up close).
+    nm.repeat.set(10,6);
     nm.needsUpdate = true;
     const params = {
-      color: col, metalness:0.72, roughness:0.45,
-      normalMap: nm, normalScale: new THREE.Vector2(1.2,0.3),
+      color: col, metalness:0.55, roughness:0.55,
+      normalMap: nm,
+      // Much stronger normal-map intensity than before — the previous
+      // values were too subtle to read except at close range.
+      normalScale: isStandingSeam ? new THREE.Vector2(1.6,1.0) : new THREE.Vector2(3.2,1.8),
       side: THREE.DoubleSide
     };
     if(role==='roof'){
@@ -1993,25 +2122,29 @@ function buildShell(bG, skip){
 
   } else {
     // ── MONO SLOPE ──
-    // Front (z=+hl) = low eave at H; Back (z=-hl) = high eave at H+mRise.
+    // Slope runs between the SIDEWALLS along X: Front Sidewall ('left',
+    // x=-hw) = high eave at ridge; Back Sidewall ('right', x=+hw) = low
+    // eave at H. The endwalls (front/back) are trapezoids sloping from
+    // high (at x=-hw) to low (at x=+hw) across their own width.
     const mRise = monoRise();
     const ridge = H + mRise;
     const ridgeY = ridge + EAVE_LIFT; // high-side eave also raised
 
-    if(!skip('front')) buildWallByBays(bG, 'front', 'x', endwallZ('front'), ()=>H);
-    if(!skip('back'))  buildWallByBays(bG, 'back',  'x', endwallZ('back'), ()=>ridge);
+    if(!skip('left'))  buildWallByBays(bG, 'left',  'z', -hw, ()=> ridge);
+    if(!skip('right')) buildWallByBays(bG, 'right', 'z',  hw, ()=> H);
 
-    // Side walls — trapezoids: low (H) at front z=+hl, high (ridge) at back z=-hl
-    if(!skip('left'))  buildWallByBays(bG, 'left',  'z', -hw, (u)=> ridge + (H-ridge)*u);
-    if(!skip('right')) buildWallByBays(bG, 'right', 'z',  hw, (u)=> ridge + (H-ridge)*u);
+    // Endwalls — trapezoids: high (ridge) at x=-hw, low (H) at x=+hw
+    if(!skip('front')) buildWallByBays(bG, 'front', 'x', endwallZ('front'), (u)=> ridge + (H-ridge)*u);
+    if(!skip('back'))  buildWallByBays(bG, 'back',  'x', endwallZ('back'), (u)=> ridge + (H-ridge)*u);
 
-    // Roof slope — single quad from front eave to back ridge, both raised
+    // Roof slope — single quad from low eave (right, x=+hw) to high eave
+    // (left, x=-hw), both raised
     const ov = 0.6;
     const roof = roofQuad([
-      [-hw-ov, eaveY,  hl+ov],
-      [ hw+ov, eaveY,  hl+ov],
-      [ hw+ov, ridgeY, -hl-ov],
       [-hw-ov, ridgeY, -hl-ov],
+      [-hw-ov, ridgeY,  hl+ov],
+      [ hw+ov, eaveY,   hl+ov],
+      [ hw+ov, eaveY,  -hl-ov],
     ]);
     bG.add(roof);
 
@@ -2026,22 +2159,22 @@ function buildShell(bG, skip){
   // inward to endwallZ(wallName) (drawn here as the "inset" position),
   // AND a pair of OUTER posts remain at the original ±hl frame line to
   // support the roof/eave over the open carport-style bay.
-  const cornerH = (z)=> S.roof==='mono' ? (z>0 ? H : H+monoRise()) : H;
+  // cornerH now keys off X (the mono slope axis runs between sidewalls):
+  // x=-hw (Front Sidewall side) is HIGH, x=+hw (Back Sidewall side) is LOW.
+  const cornerH = (x)=> S.roof==='mono' ? (x<0 ? H+monoRise() : H) : H;
   const fz2 = endwallZ('front'), bz2 = endwallZ('back');
   [[hw,fz2,'front'],[-hw,fz2,'front'],[hw,bz2,'back'],[-hw,bz2,'back']].forEach(([x,z,wallName])=>{
-    const ch = cornerH(z);
+    const ch = cornerH(x);
     tb(0.55, ch+0.4, 0.55, x, ch/2, z);
   });
   // Outer posts for open (offset) bays — at the ORIGINAL ±hl frame line
   if(S.endwallOffset.front > 0){
-    const ch = cornerH(hl);
-    tb(0.55, ch+0.4, 0.55,  hw, ch/2, hl);
-    tb(0.55, ch+0.4, 0.55, -hw, ch/2, hl);
+    tb(0.55, cornerH(hw)+0.4, 0.55,  hw, cornerH(hw)/2, hl);
+    tb(0.55, cornerH(-hw)+0.4, 0.55, -hw, cornerH(-hw)/2, hl);
   }
   if(S.endwallOffset.back > 0){
-    const ch = cornerH(-hl);
-    tb(0.55, ch+0.4, 0.55,  hw, ch/2, -hl);
-    tb(0.55, ch+0.4, 0.55, -hw, ch/2, -hl);
+    tb(0.55, cornerH(hw)+0.4, 0.55,  hw, cornerH(hw)/2, -hl);
+    tb(0.55, cornerH(-hw)+0.4, 0.55, -hw, cornerH(-hw)/2, -hl);
   }
 
   // Base trim (around slab edge, at ground level)
@@ -2100,13 +2233,13 @@ function mainRoofSlopeAt(wallName, hw, hl, H, ridge){
     // extension/soffit projects outward in Z.
     return (ridge - H) / hw;
   } else {
-    // MONO
-    if(wallName==='front' || wallName==='back'){
-      // Roof slopes along Z from front(low,H) to back(high,ridge).
-      // Continuing past either end follows the same plane.
-      return (ridge - H) / S.bL;
+    // MONO — slope now runs along X, between the sidewalls (left=high,
+    // right=low). Extensions off either sidewall continue that same
+    // roof plane outward in X at this rate.
+    if(wallName==='left' || wallName==='right'){
+      return (ridge - H) / S.bW;
     }
-    return null; // left/right (mono side walls) — roof slopes in Z, not X
+    return null; // front/back (mono endwalls, now trapezoidal) — roof slopes in X, not Z
   }
 }
 
@@ -2120,7 +2253,12 @@ function endwallHeightAt(wallName, u, H, ridge){
     const rise = ridge - H;
     return H + rise * (1 - Math.abs(2*u - 1));
   }
-  return (wallName==='front') ? H : ridge;
+  // Mono: endwalls are now the TRAPEZOIDAL walls (slope runs between
+  // sidewalls along X). Matches getWall()'s front/back hLeft/hRight:
+  // front: u=0(x=-hw)->ridge(high), u=1(x=+hw)->H(low)
+  // back:  u=0(x=+hw)->H(low),      u=1(x=-hw)->ridge(high)
+  if(wallName === 'front') return ridge + (H-ridge)*u;
+  return H + (ridge-H)*u; // back: u=0->H, u=1->ridge
 }
 
 function buildEaveExtensions(bG, hw, hl, H, ridge){
@@ -2142,8 +2280,10 @@ function buildEaveExtensions(bG, hw, hl, H, ridge){
 
     function heightAt(u){ // RAW u-fraction along this wall's span
       if(isSidewall){
-        // gable -> H everywhere; mono -> ridge+(H-ridge)*u
-        return S.roof==='mono' ? (ridge + (H-ridge)*u) : H;
+        // gable -> H everywhere; mono -> sidewalls are now CONSTANT
+        // (left=Front Sidewall=high/ridge, right=Back Sidewall=low/H)
+        if(S.roof==='mono') return (wallName==='left') ? ridge : H;
+        return H;
       }
       return endwallHeightAt(wallName, u, H, ridge);
     }
@@ -2169,8 +2309,12 @@ function buildEaveExtensions(bG, hw, hl, H, ridge){
 
       if(bayExt.eave.enabled){
         // Endwall eave extensions: pitch locked to match the main roof's
-        // gable slope rate (parallel offset of the roofline).
-        const eaveExt = isSidewall ? bayExt.eave : {...bayExt.eave, pitch: slope*12};
+        // slope rate in the extension's projection direction (Z, for
+        // endwalls). Gable: matches the gable triangle's rake. Mono:
+        // the roof no longer varies in Z (slope now runs along X
+        // between the sidewalls), so endwall extensions are flat (0)
+        // unless slope is non-null (gable case).
+        const eaveExt = isSidewall ? bayExt.eave : {...bayExt.eave, pitch: (slope!==null ? slope*12 : 0)};
         buildEaveRoof(bG, {...baseParams, ext:eaveExt});
       }
       if(bayExt.soffit.enabled){
@@ -2847,10 +2991,11 @@ function buildOpeningInfills(bG){
     const w = getWall(op.wall);
     const axis = (w.right.x !== 0) ? 'x' : 'z';
 
-    // Mono trapezoidal side walls (left/right) don't get hole-cutting yet
+    // Mono trapezoidal end walls (front/back) don't get hole-cutting yet
     // — skip infill rendering there to avoid a floating door/window mesh
-    // with no actual hole behind it.
-    if(S.roof==='mono' && axis==='z') return;
+    // with no actual hole behind it. (Sidewalls left/right are constant
+    // height for mono now, so they DO support hole-cutting normally.)
+    if(S.roof==='mono' && axis==='x') return;
 
     // Along-wall span center (world X for axis='x', world Z for axis='z')
     const spanCenter = (axis==='x')
@@ -3037,13 +3182,29 @@ function buildFramingLines(bG){
     return w.hLeft + (w.hRight - w.hLeft) * u;
   }
 
-  // Height at a world-X position on a gable endwall — tapers from H
-  // at ±hw (eave corners) up to the full ridge height at x=0 (center).
-  // For mono or endwall columns, use the wall's eave height instead.
-  function gableHeightAtX(x){
-    if(S.roof !== 'gable') return H;
-    const rise = gableRise();
-    return H + rise * (1 - Math.abs(x) / hw);
+  // Height at a world-X position on an endwall ('front' or 'back'),
+  // following whichever roofline shape applies there:
+  //   gable: tapers from H at ±hw (eave corners) up to ridge at x=0
+  //   mono:  the endwall is now the TRAPEZOIDAL wall (slope runs
+  //          between the sidewalls along X) — height varies linearly
+  //          from one side to the other, matching getWall()'s
+  //          hLeft/hRight for that wall.
+  //   flat roofs (shouldn't occur, but fall back to H)
+  function endwallColumnHeightAtX(wallName, x){
+    if(S.roof === 'gable'){
+      const rise = gableRise();
+      return H + rise * (1 - Math.abs(x) / hw);
+    }
+    if(S.roof === 'mono'){
+      // Mono endwalls are trapezoidal, sloping linearly between the
+      // sidewalls' fixed heights — independent of either wall's own
+      // raw-u convention, just interpolate directly by world X:
+      // x=-hw (Front Sidewall side) = high (monoBackH)
+      // x=+hw (Back Sidewall side) = low (monoFrontH)
+      const t = (x + hw) / (2*hw); // 0 at x=-hw, 1 at x=+hw
+      return S.monoBackH + (S.monoFrontH - S.monoBackH) * t;
+    }
+    return H;
   }
 
   function addColumn(x, z, h, axis){
@@ -3056,13 +3217,19 @@ function buildFramingLines(bG){
   }
 
   // Front & back endwall columns at each bay division — height reaches
-  // the gable triangle edge at that X position so columns continue to
-  // the roofline instead of stopping at the flat eave height.
-  [['front', endwallZ('front')+0.22], ['back', endwallZ('back')-0.22]].forEach(([wallName, z])=>{
+  // the actual roofline at that X position (gable triangle, mono
+  // trapezoid, or flat eave), so columns continue to the roofline
+  // instead of stopping short. Offset pushed out far enough to clear
+  // BOTH the wall panel (0.4ft thick) AND the gable triangle panel
+  // stacked above it (also 0.4ft thick, offset further outward by its
+  // own rotation/THICK handling) — 0.22 was only enough to clear the
+  // wall panel, causing the column to z-fight/hide inside the gable
+  // triangle's thickness above eave height.
+  [['front', endwallZ('front')+0.45], ['back', endwallZ('back')-0.45]].forEach(([wallName, z])=>{
     const divs = bayDivisions(wallName);
     divs.forEach(u=>{
       const x = u*S.bW - hw;
-      const h = gableHeightAtX(x);
+      const h = endwallColumnHeightAtX(wallName, x);
       addColumn(x, z, h, 'x');
     });
   });
@@ -3322,7 +3489,19 @@ function togBtnNested(id, obj, key){
   el.onclick=()=>{ el.classList.toggle('on'); obj[key]=el.classList.contains('on'); rebuild(); };
 }
 
-document.getElementById('matSel').onchange=()=>rebuild();
+// Panel style — split roof vs wall, stored in S for the spec output
+document.getElementById('matSelRoof').onchange = (e)=>{ S.roofPanelStyle = e.target.value; rebuild(); };
+document.getElementById('matSelWall').onchange = (e)=>{ S.wallPanelStyle = e.target.value; rebuild(); };
+
+// Insulation toggle + thickness
+togBtn('tIns','insulation');
+document.getElementById('tIns').addEventListener('click', ()=>{
+  document.getElementById('insRValueRows').style.display = S.insulation ? '' : 'none';
+});
+document.getElementById('insRoofR').value = S.insulationRoofR;
+document.getElementById('insRoofR').onchange = (e)=>{ S.insulationRoofR = +e.target.value; rebuild(); };
+document.getElementById('insWallR').value = S.insulationWallR;
+document.getElementById('insWallR').onchange = (e)=>{ S.insulationWallR = +e.target.value; rebuild(); };
 
 colorGrid('cgW',   'swW',    h=>{S.wc=h;rebuild();},   12,  WALL_COLS, WALL_NAMES);
 colorGrid('cgT',   'swT',    h=>{S.tc=h;rebuild();},   15,  WALL_COLS, WALL_NAMES);
@@ -4782,7 +4961,7 @@ function generateDesignSummary(){
   lines.push(`  Width: ${fmtFt(S.bW)}`);
   lines.push(`  Length: ${fmtFt(S.bL)}`);
   if(S.roof === 'mono'){
-    lines.push(`  Roof: Mono-slope — low eave ${fmtFt(S.monoFrontH)}, high eave ${fmtFt(S.monoBackH)}`);
+    lines.push(`  Roof: Mono-slope — Back Sidewall (low) ${fmtFt(S.monoFrontH)}, Front Sidewall (high) ${fmtFt(S.monoBackH)}`);
   } else {
     lines.push(`  Roof: Gable — eave height ${fmtFt(S.bH)}, pitch ${S.pitch}:12`);
   }
@@ -4794,6 +4973,20 @@ function generateDesignSummary(){
   lines.push(`  Wall: ${S.wc}   Trim: ${S.tc}   Roof: ${S.rc}`);
   if(S.wainscot) lines.push(`  Wainscot: ${S.wainc} (enabled, ${WAINSCOT_H} ft band)`);
   else lines.push('  Wainscot: not enabled');
+  lines.push('');
+
+  lines.push('PANEL STYLE');
+  lines.push(`  Roof Panel: ${S.roofPanelStyle}`);
+  lines.push(`  Wall Panel: ${S.wallPanelStyle}`);
+  lines.push('');
+
+  lines.push('INSULATION');
+  if(S.insulation){
+    lines.push(`  Roof: R-${S.insulationRoofR}`);
+    lines.push(`  Walls: R-${S.insulationWallR}`);
+  } else {
+    lines.push('  Insulation: not requested');
+  }
   lines.push('');
 
   // Endwall offsets (open/carport bays)
@@ -5128,6 +5321,10 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
     formData.append('projectStreet', S.projStreet || '');
     formData.append('projectCityState', S.projCityState || '');
     formData.append('projectZip', S.projZip || '');
+    formData.append('roofPanelStyle', S.roofPanelStyle);
+    formData.append('wallPanelStyle', S.wallPanelStyle);
+    formData.append('insulationRoof', S.insulation ? `R-${S.insulationRoofR}` : 'none');
+    formData.append('insulationWall', S.insulation ? `R-${S.insulationWallR}` : 'none');
 
     if(elevations.length === 4){
       const sheetBlob = await compositeElevationSheet(elevations);
@@ -5151,25 +5348,6 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   }
 
   btn.textContent = '💾 Save & Share Design';
-  btn.disabled = false;
-    });
-  }
-
-  // 3) Show the on-screen instructions modal instead of opening email
-  document.getElementById('saveModalFileCount').textContent =
-    `${fileNames.length} file${fileNames.length===1?'':'s'}`;
-  document.getElementById('saveModalFileCount2').textContent =
-    fileNames.length===1 ? 'this file' : 'both files';
-  const listEl = document.getElementById('saveModalFileList');
-  listEl.innerHTML = '';
-  fileNames.forEach(f=>{
-    const li = document.createElement('li');
-    li.textContent = f;
-    listEl.appendChild(li);
-  });
-  document.getElementById('saveModalOverlay').classList.add('open');
-
-  btn.textContent = originalText;
   btn.disabled = false;
 });
 
@@ -5201,3 +5379,4 @@ resize(); camUp(); syncRoofFields(); renderOpeningList(); rebuild(); animate();
 </script>
 </body>
 </html>
+
