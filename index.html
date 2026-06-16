@@ -5087,7 +5087,6 @@ async function compositeElevationSheet(elevations){
 }
 
 document.getElementById('saveBtn').addEventListener('click', async ()=>{
-  // ZIP code is required before a design can be saved/shared
   const zipInput = document.getElementById('projZip');
   if(!S.projZip || !S.projZip.trim()){
     zipInput.classList.add('error');
@@ -5098,48 +5097,61 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   zipInput.classList.remove('error');
 
   const btn = document.getElementById('saveBtn');
-  const originalText = btn.textContent;
   btn.textContent = '📸 Capturing views...';
   btn.disabled = true;
 
   const summary = generateDesignSummary();
   const stamp = new Date().toISOString().slice(0,10);
-  const slug = S.projName ? S.projName.trim().replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,40) : '';
-  const baseName = slug
-    ? `${slug}-${S.bW}x${S.bL}-${stamp}`
-    : `building-design-${S.bW}x${S.bL}-${stamp}`;
+  const slug = S.projName ? S.projName.trim().replace(/[^a-z0-9]+/gi,'-').slice(0,40) : '';
+  const baseName = slug ? `${slug}-${S.bW}x${S.bL}-${stamp}` : `building-design-${S.bW}x${S.bL}-${stamp}`;
 
-  // 1) Download the spec as a .txt file
-  const specBlob = new Blob([summary], {type:'text/plain'});
-  const specName = `${baseName}-spec.txt`;
-  downloadBlob(specBlob, specName);
-
-  // 2) Capture the 4 elevation views (3D perspective not needed for the
-  // output — just the elevations sheet)
+  // Capture elevation sheet
   const views = await captureAllViews();
   const viewMap = {};
   views.forEach(v=>{ viewMap[v.name] = v.blob; });
-
   const elevDefs = [
     {name:'front-sidewall', label:'FRONT SIDEWALL'},
     {name:'back-sidewall',  label:'BACK SIDEWALL'},
     {name:'right-endwall',  label:'RIGHT ENDWALL'},
     {name:'left-endwall',   label:'LEFT ENDWALL'},
   ];
-  const elevations = elevDefs
-    .map(d=>({...d, blob:viewMap[d.name]}))
-    .filter(d=>d.blob);
+  const elevations = elevDefs.map(d=>({...d, blob:viewMap[d.name]})).filter(d=>d.blob);
 
-  const fileNames = [specName];
-  if(elevations.length === 4){
-    const sheetBlob = await compositeElevationSheet(elevations);
-    const sheetName = `${baseName}-elevations.png`;
-    downloadBlob(sheetBlob, sheetName);
-    fileNames.push(sheetName);
-  } else {
-    // Fallback: download individual elevation files if composite fails
-    elevations.forEach(({name, blob})=>{
-      if(blob){ const fn=`${baseName}-${name}.png`; downloadBlob(blob,fn); fileNames.push(fn); }
+  try {
+    const formData = new FormData();
+    formData.append('specs', summary);
+    formData.append('buildingWidth', String(S.bW));
+    formData.append('buildingLength', String(S.bL));
+    formData.append('buildingHeight', String(S.bH));
+    formData.append('roofType', S.roof === 'mono' ? 'Mono Slope' : 'Gable');
+    formData.append('projectName', S.projName || '');
+    formData.append('projectStreet', S.projStreet || '');
+    formData.append('projectCityState', S.projCityState || '');
+    formData.append('projectZip', S.projZip || '');
+
+    if(elevations.length === 4){
+      const sheetBlob = await compositeElevationSheet(elevations);
+      formData.append('elevationSheet', sheetBlob, `${baseName}-elevations.png`);
+    }
+
+    const resp = await fetch('https://diybuildingdesigns.com/api/save-design', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await resp.json();
+
+    if(result.token){
+      window.top.location.href = `https://diybuildingdesigns.com/contact?design=${result.token}`;
+    } else {
+      window.top.location.href = 'https://diybuildingdesigns.com/contact';
+    }
+  } catch(err) {
+    console.error('Save failed', err);
+    window.top.location.href = 'https://diybuildingdesigns.com/contact';
+  }
+
+  btn.textContent = '💾 Save & Share Design';
+  btn.disabled = false;
     });
   }
 
